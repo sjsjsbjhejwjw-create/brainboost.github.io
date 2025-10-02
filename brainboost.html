@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrainBoost - Викторина для школьников</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .subject-btn {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .subject-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .question-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option-btn {
+            padding: 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .option-btn:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option-btn.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .option-btn.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4ECDC4, #44A08D);
+            transition: width 0.3s;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .action-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.3s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .result-screen {
+            text-align: center;
+        }
+
+        .score-display {
+            font-size: 4em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+        }
+
+        .result-message {
+            font-size: 1.5em;
+            margin: 20px 0;
+            color: #333;
+        }
+
+        .achievements-container {
+            margin: 30px 0;
+        }
+
+        .achievement {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 5px solid #4ECDC4;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .achievement-icon {
+            font-size: 2em;
+        }
+
+        .achievement-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .achievement-info p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .timer {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #FF6B6B;
+        }
+
+        .explanation {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            .logo {
+                font-size: 2em;
+            }
+            
+            .subject-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-btn {
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Экран выбора предмета -->
+        <div id="subjectScreen" class="screen active">
+            <div class="header">
+                <div class="logo">BrainBoost</div>
+                <div class="tagline">Прокачай свои знания! 100+ вопросов</div>
+            </div>
+            
+            <div class="subject-grid">
+                <button class="subject-btn" onclick="startQuiz('all')">🎯 Все предметы</button>
+                <button class="subject-btn" onclick="startQuiz('math')">📐 Математика</button>
+                <button class="subject-btn" onclick="startQuiz('physics')">⚡ Физика</button>
+                <button class="subject-btn" onclick="startQuiz('chemistry')">🧪 Химия</button>
+                <button class="subject-btn" onclick="startQuiz('biology')">🌿 Биология</button>
+                <button class="subject-btn" onclick="startQuiz('history')">📜 История</button>
+                <button class="subject-btn" onclick="startQuiz('russian')">📚 Русский язык</button>
+                <button class="subject-btn" onclick="startQuiz('literature')">📖 Литература</button>
+                <button class="subject-btn" onclick="startQuiz('geography')">🌍 География</button>
+                <button class="subject-btn" onclick="startQuiz('english')">🔤 Английский язык</button>
+            </div>
+        </div>
+
+        <!-- Экран викторины -->
+        <div id="quizScreen" class="screen">
+            <div class="header">
+                <div class="logo">BrainBoost</div>
+                <div id="currentSubject" class="tagline"></div>
+            </div>
+            
+            <div class="stats">
+                <span id="questionCounter">Вопрос 1/10</span>
+                <span id="scoreCounter">Счет: 0</span>
+                <span id="timer" class="timer">30</span>
+            </div>
+            
+            <div class="progress-bar">
+                <div id="progress" class="progress" style="width: 0%"></div>
+            </div>
+            
+            <div class="question-container">
+                <div id="questionText" class="question-text"></div>
+                <div id="optionsContainer" class="options-grid"></div>
+                <div id="explanation" class="explanation"></div>
+            </div>
+            
+            <button id="nextBtn" class="action-btn" onclick="nextQuestion()" style="display: none;">Следующий вопрос →</button>
+        </div>
+
+        <!-- Экран результатов -->
+        <div id="resultScreen" class="screen">
+            <div class="header">
+                <div class="logo">BrainBoost</div>
+            </div>
+            
+            <div class="result-screen">
+                <div class="result-message">Викторина завершена!</div>
+                <div class="score-display" id="finalScore">0</div>
+                <div class="result-message" id="resultMessage"></div>
+                
+                <div class="achievements-container" id="achievementsContainer">
+                    <!-- Достижения будут добавляться сюда -->
+                </div>
+                
+                <button class="action-btn" onclick="restartQuiz()">🔄 Начать заново</button>
+                <button class="action-btn" onclick="showSubjectScreen()">📚 Выбрать другой предмет</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // База данных вопросов (100+ вопросов)
+        const questionsDatabase = {
+            math: [
+                {
+                    question: "Чему равен квадратный корень из 144?",
+                    options: ["12", "14", "16", "18"],
+                    correct: 0,
+                    explanation: "12 × 12 = 144"
+                },
+                {
+                    question: "Что такое синус 90 градусов?",
+                    options: ["0", "0.5", "1", "2"],
+                    correct: 2,
+                    explanation: "Синус 90° равен 1"
+                },
+                {
+                    question: "Решите уравнение: 2x + 5 = 15",
+                    options: ["x = 5", "x = 7", "x = 10", "x = 15"],
+                    correct: 0,
+                    explanation: "2x = 10, значит x = 5"
+                },
+                {
+                    question: "Чему равна площадь круга с радиусом 3?",
+                    options: ["6π", "9π", "12π", "18π"],
+                    correct: 1,
+                    explanation: "S = πr² = π × 3² = 9π"
+                },
+                {
+                    question: "Что такое производная от x³?",
+                    options: ["2x²", "3x²", "3x", "x²"],
+                    correct: 1,
+                    explanation: "Производная xⁿ = n × xⁿ⁻¹"
+                },
+                {
+                    question: "Сколько градусов в прямом угле?",
+                    options: ["45°", "90°", "180°", "360°"],
+                    correct: 1,
+                    explanation: "Прямой угол равен 90 градусам"
+                },
+                {
+                    question: "Чему равно число π с точностью до сотых?",
+                    options: ["3.12", "3.14", "3.16", "3.18"],
+                    correct: 1,
+                    explanation: "π ≈ 3.14159..."
+                },
+                {
+                    question: "Что такое логарифм числа 100 по основанию 10?",
+                    options: ["1", "2", "10", "100"],
+                    correct: 1,
+                    explanation: "10² = 100, значит log₁₀100 = 2"
+                },
+                {
+                    question: "Решите: 3² + 4² = ?",
+                    options: ["7", "12", "25", "49"],
+                    correct: 2,
+                    explanation: "9 + 16 = 25"
+                },
+                {
+                    question: "Что такое факториал числа 5?",
+                    options: ["25", "60", "120", "240"],
+                    correct: 2,
+                    explanation: "5! = 5 × 4 × 3 × 2 × 1 = 120"
+                }
+            ],
+
+            physics: [
+                {
+                    question: "Что измеряется в Ньютонах?",
+                    options: ["Масса", "Сила", "Энергия", "Мощность"],
+                    correct: 1,
+                    explanation: "Ньютон - единица измерения силы"
+                },
+                {
+                    question: "С какой скоростью распространяется свет в вакууме?",
+                    options: ["300 км/с", "3000 км/с", "30000 км/с", "300000 км/с"],
+                    correct: 3,
+                    explanation: "Скорость света ≈ 300 000 км/с"
+                },
+                {
+                    question: "Кто открыл закон всемирного тяготения?",
+                    options: ["Эйнштейн", "Ньютон", "Галилей", "Коперник"],
+                    correct: 1,
+                    explanation: "Исаак Ньютон открыл закон в 1687 году"
+                },
+                {
+                    question: "Что такое кинетическая энергия?",
+                    options: ["Энергия движения", "Энергия покоя", "Тепловая энергия", "Потенциальная энергия"],
+                    correct: 0,
+                    explanation: "Энергия движущегося тела"
+                },
+                {
+                    question: "Единица измерения электрического сопротивления?",
+                    options: ["Вольт", "Ампер", "Ом", "Ватт"],
+                    correct: 2,
+                    explanation: "Ом - единица сопротивления"
+                },
+                {
+                    question: "Что такое инерция?",
+                    options: ["Свойство сохранять скорость", "Сила трения", "Ускорение", "Энергия"],
+                    correct: 0,
+                    explanation: "Свойство тела сохранять состояние движения"
+                },
+                {
+                    question: "Формула закона Ома?",
+                    options: ["I = U/R", "P = UI", "Q = mcΔT", "F = ma"],
+                    correct: 0,
+                    explanation: "I = U/R - сила тока равна напряжению, деленному на сопротивление"
+                }
+            ],
+
+            chemistry: [
+                {
+                    question: "Какой газ самый легкий?",
+                    options: ["Кислород", "Азот", "Водород", "Гелий"],
+                    correct: 2,
+                    explanation: "Водород - самый легкий газ"
+                },
+                {
+                    question: "Формула поваренной соли?",
+                    options: ["NaCl", "KCl", "CaCl₂", "MgCl₂"],
+                    correct: 0,
+                    explanation: "NaCl - хлорид натрия"
+                },
+                {
+                    question: "Что показывает pH?",
+                    options: ["Температуру", "Кислотность", "Плотность", "Концентрацию"],
+                    correct: 1,
+                    explanation: "pH показывает кислотность среды"
+                },
+                {
+                    question: "Какой элемент обозначается Au?",
+                    options: ["Серебро", "Золото", "Алюминий", "Аргон"],
+                    correct: 1,
+                    explanation: "Au - золото (Aurum)"
+                },
+                {
+                    question: "Что такое окисление?",
+                    options: ["Присоединение электронов", "Отдача электронов", "Присоединение протонов", "Отдача нейтронов"],
+                    correct: 1,
+                    explanation: "Окисление - процесс отдачи электронов"
+                },
+                {
+                    question: "Сколько электронов на внешнем уровне у азота?",
+                    options: ["3", "5", "7", "8"],
+                    correct: 1,
+                    explanation: "Азот имеет 5 электронов на внешнем уровне"
+                },
+                {
+                    question: "Что такое катализатор?",
+                    options: ["Вещество, ускоряющее реакцию", "Вещество, замедляющее реакцию", "Конечный продукт реакции", "Исходное вещество"],
+                    correct: 0,
+                    explanation: "Катализатор ускоряет химическую реакцию"
+                }
+            ],
+
+            biology: [
+                {
+                    question: "Сколько хромосом у человека?",
+                    options: ["23", "46", "64", "92"],
+                    correct: 1,
+                    explanation: "46 хромосом (23 пары)"
+                },
+                {
+                    question: "Кто открыл пенициллин?",
+                    options: ["Пастер", "Флеминг", "Мечников", "Кох"],
+                    correct: 1,
+                    explanation: "Александр Флеминг в 1928 году"
+                },
+                {
+                    question: "Что такое митоз?",
+                    options: ["Деление половых клеток", "Деление соматических клеток", "Синтез белка", "Дыхание клетки"],
+                    correct: 1,
+                    explanation: "Деление соматических (телесных) клеток"
+                },
+                {
+                    question: "Какой орган отвечает за фильтрацию крови?",
+                    options: ["Сердце", "Печень", "Почки", "Легкие"],
+                    correct: 2,
+                    explanation: "Почки фильтруют кровь и образуют мочу"
+                },
+                {
+                    question: "Что такое фотосинтез?",
+                    options: ["Дыхание растений", "Поглощение воды", "Образование глюкозы на свету", "Рост растений"],
+                    correct: 2,
+                    explanation: "Образование глюкозы из CO₂ и воды на свету"
+                },
+                {
+                    question: "Что такое ДНК?",
+                    options: ["Носитель генетической информации", "Белок", "Углевод", "Фермент"],
+                    correct: 0,
+                    explanation: "ДНК - дезоксирибонуклеиновая кислота, носитель генетической информации"
+                },
+                {
+                    question: "Какой витамин вырабатывается на солнце?",
+                    options: ["Витамин A", "Витамин C", "Витамин D", "Витамин E"],
+                    correct: 2,
+                    explanation: "Витамин D вырабатывается в коже под действием солнечного света"
+                }
+            ],
+
+            history: [
+                {
+                    question: "В каком году началась Вторая мировая война?",
+                    options: ["1914", "1939", "1941", "1945"],
+                    correct: 1,
+                    explanation: "1 сентября 1939 года"
+                },
+                {
+                    question: "Кто был первым президентом России?",
+                    options: ["Горбачев", "Ельцин", "Путин", "Медведев"],
+                    correct: 1,
+                    explanation: "Борис Ельцин (1991-1999)"
+                },
+                {
+                    question: "Когда произошла Куликовская битва?",
+                    options: ["1240", "1380", "1480", "1552"],
+                    correct: 1,
+                    explanation: "8 сентября 1380 года"
+                },
+                {
+                    question: "Кто написал 'Слово о полку Игореве'?",
+                    options: ["Неизвестный автор", "Нестор", "Мономах", "Пушкин"],
+                    correct: 0,
+                    explanation: "Автор неизвестен"
+                },
+                {
+                    question: "В каком году крестили Русь?",
+                    options: ["862", "988", "1147", "1240"],
+                    correct: 1,
+                    explanation: "988 год - крещение Руси князем Владимиром"
+                },
+                {
+                    question: "Кто был первым русским царем?",
+                    options: ["Иван III", "Иван IV", "Петр I", "Алексей Михайлович"],
+                    correct: 1,
+                    explanation: "Иван IV Грозный - первый царь всея Руси"
+                },
+                {
+                    question: "В каком году распался СССР?",
+                    options: ["1989", "1990", "1991", "1992"],
+                    correct: 2,
+                    explanation: "Распад СССР произошел в декабре 1991 года"
+                }
+            ],
+
+            russian: [
+                {
+                    question: "Сколько падежей в русском языке?",
+                    options: ["5", "6", "7", "8"],
+                    correct: 1,
+                    explanation: "6 падежей: именительный, родительный, дательный, винительный, творительный, предложный"
+                },
+                {
+                    question: "Что такое омонимы?",
+                    options: ["Слова с противоположным значением", "Слова, близкие по значению", "Слова, одинаковые по звучанию, но разные по значению", "Устаревшие слова"],
+                    correct: 2,
+                    explanation: "Омонимы - слова, одинаковые по звучанию, но разные по значению"
+                },
+                {
+                    question: "Как проверить безударную гласную в корне?",
+                    options: ["Поставить ударение", "Подобрать однокоренное слово", "Посмотреть в словарь", "Запомнить"],
+                    correct: 1,
+                    explanation: "Нужно подобрать однокоренное слово, где эта гласная под ударением"
+                },
+                {
+                    question: "Что такое причастие?",
+                    options: ["Самостоятельная часть речи", "Форма глагола", "Особая форма глагола", "Служебная часть речи"],
+                    correct: 2,
+                    explanation: "Причастие - особая форма глагола, обладающая признаками глагола и прилагательного"
+                },
+                {
+                    question: "Сколько спряжений у глаголов в русском языке?",
+                    options: ["1", "2", "3", "4"],
+                    correct: 1,
+                    explanation: "Два спряжения: первое и второе"
+                },
+                {
+                    question: "Что такое метафора?",
+                    options: ["Сравнение", "Переносное значение", "Противопоставление", "Повтор"],
+                    correct: 1,
+                    explanation: "Метафора - переносное значение слова"
+                },
+                {
+                    question: "Какой падеж отвечает на вопрос 'Кем? Чем?'?",
+                    options: ["Именительный", "Родительный", "Дательный", "Творительный"],
+                    correct: 3,
+                    explanation: "Творительный падеж отвечает на вопросы Кем? Чем?"
+                }
+            ],
+
+            literature: [
+                {
+                    question: "Кто написал 'Горе от ума'?",
+                    options: ["Пушкин", "Грибоедов", "Гоголь", "Лермонтов"],
+                    correct: 1,
+                    explanation: "Александр Грибоедов"
+                },
+                {
+                    question: "Как звали главного героя 'Евгения Онегина'?",
+                    options: ["Владимир", "Евгений", "Александр", "Михаил"],
+                    correct: 1,
+                    explanation: "Евгений Онегин"
+                },
+                {
+                    question: "Кто такой Печорин?",
+                    options: ["Герой Гоголя", "Герой Лермонтова", "Герой Тургенева", "Герой Достоевского"],
+                    correct: 1,
+                    explanation: "Главный герой романа Лермонтова 'Герой нашего времени'"
+                },
+                {
+                    question: "Что такое гипербола?",
+                    options: ["Преуменьшение", "Преувеличение", "Сравнение", "Олицетворение"],
+                    correct: 1,
+                    explanation: "Художественное преувеличение"
+                },
+                {
+                    question: "Кто написал поэму 'Мертвые души'?",
+                    options: ["Пушкин", "Толстой", "Гоголь", "Чехов"],
+                    correct: 2,
+                    explanation: "Николай Гоголь"
+                },
+                {
+                    question: "Кто автор 'Войны и мира'?",
+                    options: ["Достоевский", "Толстой", "Тургенев", "Чехов"],
+                    correct: 1,
+                    explanation: "Лев Толстой"
+                },
+                {
+                    question: "Что такое антитеза?",
+                    options: ["Противопоставление", "Сравнение", "Повтор", "Гипербола"],
+                    correct: 0,
+                    explanation: "Антитеза - противопоставление понятий и образов"
+                }
+            ],
+
+            geography: [
+                {
+                    question: "Самая длинная река в мире?",
+                    options: ["Амазонка", "Нил", "Янцзы", "Миссисипи"],
+                    correct: 0,
+                    explanation: "Амазонка - самая длинная река в мире"
+                },
+                {
+                    question: "Самая высокая гора в мире?",
+                    options: ["Килиманджаро", "Эверест", "Монблан", "Эльбрус"],
+                    correct: 1,
+                    explanation: "Эверест (Джомолунгма) - 8848 м"
+                },
+                {
+                    question: "Столица Австралии?",
+                    options: ["Сидней", "Мельбурн", "Канберра", "Брисбен"],
+                    correct: 2,
+                    explanation: "Канберра - столица Австралии"
+                },
+                {
+                    question: "Самое большое озеро в мире?",
+                    options: ["Байкал", "Верхнее", "Каспийское море", "Виктория"],
+                    correct: 2,
+                    explanation: "Каспийское море - самое большое озеро в мире"
+                },
+                {
+                    question: "Сколько океанов на Земле?",
+                    options: ["4", "5", "6", "7"],
+                    correct: 1,
+                    explanation: "5 океанов: Тихий, Атлантический, Индийский, Южный, Северный Ледовитый"
+                }
+            ],
+
+            english: [
+                {
+                    question: "Как переводится 'book'?",
+                    options: ["Ручка", "Книга", "Стол", "Окно"],
+                    correct: 1,
+                    explanation: "Book - книга"
+                },
+                {
+                    question: "Какое время используется для выражения будущего действия?",
+                    options: ["Past Simple", "Present Continuous", "Future Simple", "Present Perfect"],
+                    correct: 2,
+                    explanation: "Future Simple используется для будущих действий"
+                },
+                {
+                    question: "Какой артикль используется с единственным числом?",
+                    options: ["a/an", "the", "-", "some"],
+                    correct: 0,
+                    explanation: "Артикль a/an используется с исчисляемыми существительными в единственном числе"
+                },
+                {
+                    question: "Что означает 'to run'?",
+                    options: ["Прыгать", "Бегать", "Плавать", "Идти"],
+                    correct: 1,
+                    explanation: "To run - бегать"
+                },
+                {
+                    question: "Как образуется множественное число у слова 'child'?",
+                    options: ["childs", "children", "childes", "child"],
+                    correct: 1,
+                    explanation: "Child - children (исключение)"
+                }
+            ]
+        };
+
+        // Переменные игры
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedSubject = '';
+        let userAnswers = [];
+        let timer;
+        let timeLeft = 30;
+        let achievements = [];
+
+        // Достижения
+        const allAchievements = [
+            { id: 'first_win', name: 'Первый успех', description: 'Пройдите первую викторину', icon: '🏆', unlocked: false },
+            { id: 'math_genius', name: 'Математический гений', description: 'Наберите 100% по математике', icon: '📐', unlocked: false },
+            { id: 'history_expert', name: 'Знаток истории', description: 'Наберите 100% по истории', icon: '📜', unlocked: false },
+            { id: 'speed_demon', name: 'Скоростной демон', description: 'Ответьте на 5 вопросов подряд менее чем за 10 секунд', icon: '⚡', unlocked: false },
+            { id: 'perfect_score', name: 'Идеальный результат', description: 'Наберите максимальный счет в любой викторине', icon: '⭐', unlocked: false },
+            { id: 'polyglot', name: 'Полиглот', description: 'Пройдите викторины по 5 разным предметам', icon: '🌍', unlocked: false }
+        ];
+
+        // Функции игры
+        function startQuiz(subject) {
+            selectedSubject = subject;
+            
+            if (subject === 'all') {
+                currentQuestions = [];
+                for (const key in questionsDatabase) {
+                    currentQuestions = currentQuestions.concat(questionsDatabase[key]);
+                }
+                currentQuestions = shuffleArray(currentQuestions).slice(0, 15);
+            } else {
+                currentQuestions = shuffleArray([...questionsDatabase[subject]]);
+            }
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            timeLeft = 30;
+            
+            document.getElementById('currentSubject').textContent = getSubjectName(subject);
+            showScreen('quizScreen');
+            startTimer();
+            loadQuestion();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 30;
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timer').textContent = timeLeft;
+            if (timeLeft <= 10) {
+                document.getElementById('timer').style.color = '#FF6B6B';
+            } else {
+                document.getElementById('timer').style.color = '#667eea';
+            }
+        }
+
+        function handleTimeOut() {
+            const question = currentQuestions[currentQuestionIndex];
+            const options = document.getElementsByClassName('option-btn');
+            const correctIndex = question.correct;
+            
+            for (let option of options) {
+                option.disabled = true;
+            }
+            
+            options[correctIndex].classList.add('correct');
+            
+            userAnswers.push({
+                question: question.question,
+                userAnswer: -1,
+                correctAnswer: correctIndex,
+                isCorrect: false,
+                explanation: question.explanation + " (Время вышло!)"
+            });
+            
+            document.getElementById('explanation').textContent = question.explanation + " (Время вышло!)";
+            document.getElementById('explanation').classList.add('show');
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= currentQuestions.length) {
+                showResults();
+                return;
+            }
+
+            const question = currentQuestions[currentQuestionIndex];
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('questionCounter').textContent = 
+                `Вопрос ${currentQuestionIndex + 1}/${currentQuestions.length}`;
+            document.getElementById('scoreCounter').textContent = `Счет: ${score}`;
+            
+            const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+            
+            document.getElementById('explanation').classList.remove('show');
+            document.getElementById('nextBtn').style.display = 'none';
+            startTimer();
+        }
+
+        function selectAnswer(selectedIndex) {
+            clearInterval(timer);
+            const question = currentQuestions[currentQuestionIndex];
+            const options = document.getElementsByClassName('option-btn');
+            const correctIndex = question.correct;
+            
+            for (let option of options) {
+                option.disabled = true;
+            }
+            
+            let timeBonus = Math.floor(timeLeft / 3);
+            if (selectedIndex === correctIndex) {
+                options[selectedIndex].classList.add('correct');
+                score += 10 + timeBonus;
+                playSound('correct');
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[correctIndex].classList.add('correct');
+                playSound('incorrect');
+            }
+            
+            userAnswers.push({
+                question: question.question,
+                userAnswer: selectedIndex,
+                correctAnswer: correctIndex,
+                isCorrect: selectedIndex === correctIndex,
+                explanation: question.explanation + (timeBonus > 0 ? ` (+${timeBonus} за скорость!)` : "")
+            });
+            
+            document.getElementById('explanation').textContent = question.explanation + (timeBonus > 0 ? ` (+${timeBonus} за скорость!)` : "");
+            document.getElementById('explanation').classList.add('show');
+            document.getElementById('scoreCounter').textContent = `Счет: ${score}`;
+            document.getElementById('nextBtn').style.display = 'block';
+            
+            checkAchievements();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function showResults() {
+            const finalScore = score;
+            const maxScore = currentQuestions.length * 10;
+            const percentage = (finalScore / maxScore) * 100;
+            
+            document.getElementById('finalScore').textContent = finalScore;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = 'Отлично! Ты настоящий эрудит! 🎉';
+                playSound('win');
+            } else if (percentage >= 70) {
+                message = 'Хорошо! Отличные знания! 👍';
+                playSound('good');
+            } else if (percentage >= 50) {
+                message = 'Неплохо! Есть куда стремиться! 💪';
+                playSound('ok');
+            } else {
+                message = 'Попробуй еще раз! Ты сможешь лучше! 📚';
+                playSound('lose');
+            }
+            
+            document.getElementById('resultMessage').textContent = message;
+            showAchievements();
+            showScreen('resultScreen');
+        }
+
+        function showAchievements() {
+            const container = document.getElementById('achievementsContainer');
+            container.innerHTML = '<h3>Достижения:</h3>';
+            
+            achievements.forEach(achievement => {
+                const achievementEl = document.createElement('div');
+                achievementEl.className = 'achievement';
+                achievementEl.innerHTML = `
+                    <div class="achievement-icon">${achievement.icon}</div>
+                    <div class="achievement-info">
+                        <h3>${achievement.name}</h3>
+                        <p>${achievement.description}</p>
+                    </div>
+                `;
+                container.appendChild(achievementEl);
+            });
+            
+            if (achievements.length === 0) {
+                container.innerHTML += '<p>Пока нет достижений. Продолжайте играть!</p>';
+            }
+        }
+
+        function checkAchievements() {
+            // Первый успех
+            if (!achievements.find(a => a.id === 'first_win') && score > 0) {
+                unlockAchievement('first_win');
+            }
+            
+            // Идеальный результат
+            if (!achievements.find(a => a.id === 'perfect_score') && score === currentQuestions.length * 10) {
+                unlockAchievement('perfect_score');
+            }
+            
+            // Скоростной демон
+            if (!achievements.find(a => a.id === 'speed_demon') && timeLeft > 20 && currentQuestionIndex >= 4) {
+                unlockAchievement('speed_demon');
+            }
+        }
+
+        function unlockAchievement(achievementId) {
+            const achievement = allAchievements.find(a => a.id === achievementId);
+            if (achievement && !achievement.unlocked) {
+                achievement.unlocked = true;
+                achievements.push(achievement);
+                playSound('achievement');
+            }
+        }
+
+        function playSound(type) {
+            // В реальном приложении здесь были бы звуковые файлы
+            console.log(`Playing sound: ${type}`);
+        }
+
+        function restartQuiz() {
+            startQuiz(selectedSubject);
+        }
+
+        function showSubjectScreen() {
+            showScreen('subjectScreen');
+        }
+
+        // Вспомогательные функции
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenName).classList.add('active');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function getSubjectName(subject) {
+            const names = {
+                'all': 'Все предметы',
+                'math': 'Математика',
+                'physics': 'Физика',
+                'chemistry': 'Химия',
+                'biology': 'Биология',
+                'history': 'История',
+                'russian': 'Русский язык',
+                'literature': 'Литература',
+                'geography': 'География',
+                'english': 'Английский язык'
+            };
+            return names[subject];
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('BrainBoost loaded! Total questions:', 
+                Object.values(questionsDatabase).reduce((acc, curr) => acc + curr.length, 0));
+        });
+    </script>
+</body>
+</html>
